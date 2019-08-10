@@ -7,7 +7,8 @@ setup(
     include_package_data=True,
     install_requires=[
         'Click',
-        'boto3'
+        'boto3',
+        'jinja2'
     ],
     entry_points='''
         [console_scripts]
