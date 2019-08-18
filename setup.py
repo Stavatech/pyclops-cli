@@ -8,7 +8,8 @@ setup(
     install_requires=[
         'Click',
         'boto3',
-        'jinja2'
+        'jinja2',
+        'requests'
     ],
     entry_points='''
         [console_scripts]
