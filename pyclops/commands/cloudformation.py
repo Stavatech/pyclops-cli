@@ -16,12 +16,18 @@ def cloudformation():
 @click.command()
 @click.option('--templates-dir', prompt='Templates directory', help='Directory containing template yml/jinja files')
 @click.option('--params-file', prompt='Parameter file', help='Python file containing template parameters')
+@click.option('--stage', default=None, help='The stage that the CloudFormation template is being generated for (if applicable)')
 @click.option('--output-prefix', prompt='Prefix for output files', help='Prefix for the generated template and config files')
-def build(templates_dir, params_file, output_prefix):
+def build(templates_dir, params_file, stage, output_prefix):
     """ Build a complete CloudFormation template from multiple source YAML and Jinja files """
-
     params_module = load_module('params', params_file)
     params = {k:v for k,v in params_module.__dict__.items() if not k.startswith("__")}
+
+    if stage:
+        params['stage'] = stage
+        stage_params = params['stages'][stage]
+        for key in stage_params.keys():
+            params['stage_%s' % key] = stage_params[key]
 
     jinja.process_dir(templates_dir, params)
 

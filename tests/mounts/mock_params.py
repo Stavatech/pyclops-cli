@@ -1,3 +1,6 @@
+import os
+
+
 project_name = "mock_project"
 
 github_token = "mock_token"
@@ -27,3 +30,5 @@ ecr_repo = "ecr_repo"
 
 load_balancer_path = "*"
 load_balancer_priority = 1
+
+image_tag = os.getenv('IMAGE_TAG')
