@@ -6,9 +6,12 @@ import boto3
 
 from pyclops.lib.io import process
 from pyclops.lib.docker import docker
+from pyclops.lib.git.github.repo import create_repo
+from pyclops.lib.git.github.provider import GithubProvider
+from pyclops.lib.git.template import Template
 
 
-DEFAULT_DJANGO_TEMPLATE = "https://github.com/Stavatech/Django-Template.git"
+DEFAULT_DJANGO_TEMPLATE = Template(template_owner="Stavatech", template_name="Django-Template")
 DEFAULT_CLOUD_PROVIDER = "aws"
 
 
@@ -49,4 +52,20 @@ def create_stack(name, domain, template, provider, working_dir):
     # 6) create cfn pipeline stack
 
 
+@click.command()
+@click.option('--project-name', prompt='Project name', help='The name that will be used for the new repo and project')
+@click.option('--owner', prompt="Git repo owner", help='The user or organization that will own the new repo')
+@click.option('--template', default=DEFAULT_DJANGO_TEMPLATE, help='The template git repository')
+@click.argument('working-dir', type=click.Path())
+def generate_project(project_name, owner, template, working_dir):
+    """ Generates a new project from a Django template """
+    # Steps:
+    # 1) copy git repo to new
+    os.makedirs(working_dir, exist_ok=True)
+    repo = create_repo(GithubProvider(), owner, project_name, template=template)
+    
+    
+
+
 django.add_command(create_stack)
+django.add_command(generate_project)
