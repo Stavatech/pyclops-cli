@@ -24,10 +24,16 @@ def create_repo(git_provider:GithubProvider, owner:str, name:str, is_org:bool=Fa
     url = os.path.join(git_provider.api_endpoint, relative_url)
     
     response = requests.post(url, json=body, headers=headers)
-    if response.status_code == 200:
+    if response.status_code < 400:
         repo = response.json()
-        return Repository(owner=repo['owner']['login'], name=repo['name'], git_provider=git_provider, location=repo['html_url'])
+        return Repository(
+            owner=repo['owner']['login'], 
+            name=repo['name'], 
+            branch=repo['default_branch'], 
+            git_provider=git_provider, 
+            ssh_url=repo['ssh_url']
+        )
     else:
         error = response.json()
-        error_arr = [error['message']] + error['errors']
+        error_arr = [error.get('message')] + error.get('errors', [])
         raise RuntimeError("\n- ".join(error_arr))    
