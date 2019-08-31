@@ -16,7 +16,8 @@ stages = {
             "container_port": 8000,
             "container_cpu": 256,
             "container_memory": 512
-        }, "production": {
+        }, 
+        "production": {
             "domain": "www.mock.com",
             "hosted_zone_id": "ABCDEFG",
             "container_count": 2,
