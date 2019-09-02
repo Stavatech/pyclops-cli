@@ -1,6 +1,11 @@
-import click, inspect
+import click
+import inspect
+import os
 
 from pyclops.commands import cli_groups
+
+
+os.environ.setdefault('BUILD_DIR', "./build")
 
 
 @click.group()
