@@ -43,4 +43,4 @@ def process_dir(path, params={}, in_place=False, build_dir=DEFAULT_BUILD_DIR, su
 
         with open(output_template_path, 'w') as rendered_template_file:
             print(rendered_template, file=rendered_template_file)
-            print("Generated %s" % output_template_path)        
+            print("Generated %s" % output_template_path)  
