@@ -3,9 +3,10 @@ import click
 
 from pyclops.lib.io.modules import load_params
 from pyclops.lib.aws.cloudformation import build_cfn
+from pyclops.lib.io import build as build_utils
 
 
-DEFAULT_BUILD_DIR = os.path.join(
+BUILD_DIR = os.path.join(
     os.getenv('BUILD_DIR', './build'),
     'cfn'
 )
@@ -20,9 +21,11 @@ def cloudformation():
 @click.option('--templates-dir', prompt='Templates directory', help='Directory containing template yml/jinja files')
 @click.option('--params-file', prompt='Parameter file', help='Python file containing template parameters')
 @click.option('--stage', default=None, help='The stage that the CloudFormation template is being generated for (if applicable)')
-@click.option('--output-prefix', prompt='Prefix for output files', help='Prefix for the generated template and config files')
+@click.option('--output-prefix', default='cfn', help='Prefix for the generated template and config files')
 def build(templates_dir, params_file, stage, output_prefix):
     """ Build a complete CloudFormation template from multiple source YAML and Jinja files """
+    build_utils.clean(BUILD_DIR)
+
     params = load_params('params', params_file)
 
     if stage:
@@ -31,7 +34,7 @@ def build(templates_dir, params_file, stage, output_prefix):
         for key in stage_params.keys():
             params['stage_%s' % key] = stage_params[key]
 
-    build_cfn(templates_dir, params, build_dir=DEFAULT_BUILD_DIR, output_prefix=output_prefix)
+    build_cfn(templates_dir, params, build_dir=BUILD_DIR, output_prefix=output_prefix)
 
 
 @click.command()

@@ -9,7 +9,8 @@ setup(
         'Click',
         'boto3',
         'jinja2',
-        'requests'
+        'requests',
+        'ruamel.yaml'
     ],
     entry_points='''
         [console_scripts]
