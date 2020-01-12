@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 
 from pyclops.lib.git.repo import Repository
@@ -10,6 +11,10 @@ class GithubProvider(object):
         self.credentials = credentials
     
     def create_repo(self, owner:str, name:str, is_org:bool=False, optional_params:dict={}) -> Repository:
+        if not self.credentials:
+            sys.stderr.write("Error: Github credntials not found. Has the GITHUB_OAUTH environment variable been set?\n")
+            sys.exit(-1)
+
         body = {"name": name, **optional_params}        
         if is_org:
             relative_url = "orgs/%s/repos" % owner

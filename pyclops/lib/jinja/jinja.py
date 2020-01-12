@@ -25,8 +25,9 @@ def process_dir(path, params={}, in_place=False, build_dir=DEFAULT_BUILD_DIR, su
             continue
         
         template = template[len(path):]
+        template = template.lstrip('/')
         
-        input_template_path = os.path.join(path, template)
+        input_template_path = "%s/%s" % (path, template)
 
         if in_place:
             output_template_path = input_template_path
