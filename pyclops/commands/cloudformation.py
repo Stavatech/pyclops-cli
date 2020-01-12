@@ -7,7 +7,7 @@ from pyclops.lib.io import build as build_utils
 
 
 BUILD_DIR = os.path.join(
-    os.getenv('BUILD_DIR', './build'),
+    build_utils.BUILD_DIR,
     'cfn'
 )
 
