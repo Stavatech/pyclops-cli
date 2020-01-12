@@ -1,6 +1,7 @@
 import click
 
 from .vpc import vpc
+from .serverless import serverless
 
 
 @click.group()
@@ -9,3 +10,4 @@ def aws():
 
 
 aws.add_command(vpc)
+aws.add_command(serverless)
