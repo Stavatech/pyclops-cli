@@ -2,7 +2,7 @@ import os
 import click
 import json
 
-from pyclops.lib.io.params import load_params
+from pyclops.lib.projects.params import load_params
 from pyclops.lib.aws.cloudformation import (
     build_cfn,
     get_stack,
