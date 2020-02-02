@@ -1,5 +1,6 @@
 import os
 import glob
+import json
 
 import boto3
 from botocore.exceptions import ClientError
@@ -12,13 +13,15 @@ def build_cfn(templates_dir, params, build_dir, output_prefix="cfn"):
     """ Build a complete CloudFormation template from multiple source YAML and Jinja files """
     jinja.process_dir(templates_dir, params, build_dir=build_dir)
     
-    yaml_glob_path = os.path.join(build_dir, "*.template.yml")
+    yml_glob_path = os.path.join(build_dir, "*.template.yml")
+    yaml_glob_path = os.path.join(build_dir, "*.template.yaml")
     json_glob_path = os.path.join(build_dir, "*.template.json")
 
+    yml_templates = glob.glob(yml_glob_path)
     yaml_templates = glob.glob(yaml_glob_path)
     json_templates = glob.glob(json_glob_path)
 
-    templates = yaml_templates + json_templates
+    templates = yml_templates + yaml_templates + json_templates
 
     merged_template = yaml.merge(templates)
 
@@ -41,7 +44,10 @@ def validate_cfn(template_dict):
         'Parameters',
         'Conditions',
         'Resources',
-        'Mappings'
+        'Mappings',
+        'Transform',
+        'Description',
+        'Globals'
     ]
 
     for key in template_dict.keys():
@@ -57,19 +63,49 @@ def get_stack(stack_name):
         return None
 
 
-def create_stack(stack_name, template_body, capabilities=[]):
+def create_stack(stack_name, template_body, capabilities=[], parameters=[]):
     client = boto3.client('cloudformation')
     return client.create_stack(
         StackName=stack_name,
         TemplateBody=template_body,
-        Capabilities=capabilities
+        Capabilities=capabilities,
+        Parameters=parameters
     )
 
 
-def update_stack(stack_name, template_body, capabilities=[]):
+def update_stack(stack_name, template_body, capabilities=[], parameters=[]):
     client = boto3.client('cloudformation')
     return client.update_stack(
         StackName=stack_name,
         TemplateBody=template_body,
-        Capabilities=capabilities
+        Capabilities=capabilities,
+        Parameters=parameters
     )
+
+def extract_parameters_from_config(template_config):
+    if os.path.isfile(template_config):
+        raise Exception('An invalid path was specified for the template config file: %s' % template_config)
+
+    param_list = []
+    with open(template_config, 'r') as config:
+        params = json.loads(config.read()).get('Parameters')
+        if params:
+            param_list = [{key: value} for key, value in params.items()]
+
+    return param_list
+
+def transform_template_values(template_file, resource_type, resource_property, value):
+    yaml_dict = yaml.read_yaml_file(template_file)
+
+    for resource_name, resource in yaml_dict['Resources'].items():
+        if resource['Type'] == resource_type:
+            print('Resource "%s" matched type "%s". Transforming "%s" property from "%s" to "%s".' % (
+                resource_name, 
+                resource_type, 
+                resource_property, 
+                resource['Properties'][resource_property], 
+                value
+            ))
+            resource['Properties'][resource_property] = value
+
+    yaml.write_yaml_file(yaml_dict, template_file)

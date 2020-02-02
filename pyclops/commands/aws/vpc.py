@@ -5,7 +5,7 @@ from pyclops.lib.git.github.provider import GithubProvider
 from pyclops.lib.git.repo import Repository
 
 from pyclops.lib.aws.cloudformation import build_cfn, get_stack, create_stack, update_stack
-from pyclops.lib.io.modules import load_params
+from pyclops.lib.io.params import load_params
 
 
 DEFAULT_VPC_TEMPLATE = Repository(GithubProvider(), 'Stavatech', 'VPC-Template', 'master', 'git@github.com:Stavatech/VPC-Template.git', 'https://github.com/Stavatech/VPC-Template.git')
