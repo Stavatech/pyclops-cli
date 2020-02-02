@@ -1,8 +1,15 @@
 import os
 import click
+import json
 
-from pyclops.lib.io.modules import load_params
-from pyclops.lib.aws.cloudformation import build_cfn
+from pyclops.lib.io.params import load_params
+from pyclops.lib.aws.cloudformation import (
+    build_cfn,
+    get_stack,
+    create_stack,
+    update_stack,
+    extract_parameters_from_config
+)
 from pyclops.lib.io import build as build_utils
 
 
@@ -28,23 +35,38 @@ def build(templates_dir, params_file, stage, output_prefix):
 
     params = load_params('params', params_file)
 
-    if stage:
-        params['stage'] = stage
-        stage_params = params['stages'][stage]
-        for key in stage_params.keys():
-            params['stage_%s' % key] = stage_params[key]
-
     build_cfn(templates_dir, params, build_dir=BUILD_DIR, output_prefix=output_prefix)
 
 
 @click.command()
 @click.option('--stack-name', prompt='Stack name', help='CloudFormation stack name')
 @click.option('--template-file', prompt='Template file', help='CloudFormation template file (https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html#w2ab1c13c15c13)')
-@click.option('--template-config', prompt='Template config file', help='CloudFormation template config file (https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html#w2ab1c13c15c15)')
-@click.option('--parameter-overrides', prompt='Template parameter overrides', help='Parameter overrides in the format: ParamName1=ParamValue1,ParamName2=ParamValue2')
-def deploy(stack_name, template_file, template_config, parameter_overrides):
+@click.option('--template-config', default=None, help='CloudFormation template config file (https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/continuous-delivery-codepipeline-cfn-artifacts.html#w2ab1c13c15c15)')
+@click.option('--parameter-overrides', default=None, help='Parameter overrides in the format: ParamName1=ParamValue1,ParamName2=ParamValue2')
+@click.option('--capabilities', default='CAPABILITY_IAM', help='Comma-separated list of CFN IAM capabilities')
+def deploy(stack_name, template_file, template_config, parameter_overrides, capabilities):
     """ Deploy a CloudFormation template to AWS """
-    pass
+    with open(template_file, 'r') as template:
+        template_body = template.read()
+    
+    params = []
+
+    if template_config:
+        params = extract_parameters_from_config(template_config)
+
+    if parameter_overrides:
+        for parameter_override in parameter_overrides.split(','):
+            key, value = tuple(parameter_override.split('='))
+            params[key] = value
+
+    if get_stack(stack_name):
+        print("Stack already exists. Updating...")
+        response = update_stack(stack_name, template_body, capabilities.split(','), params)
+    else:
+        print("Stack doesn't exist. Creating new stack...")
+        response = create_stack(stack_name, template_body, capabilities.split(','), params)
+
+    print("StackId: %s" % response['StackId'])
 
 
 cloudformation.add_command(build)
