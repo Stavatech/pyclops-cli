@@ -44,7 +44,7 @@ def vpc():
 @click.option('--with-nat-gateway', is_flag=True, help='Indicates whether a NAT gateway should be created in each availability zone')
 @click.option('--git-owner', prompt="Git username/organisation", help='The git username or organisation (see --is-org) that will own the new repository')
 @click.option('--is-org', is_flag=True, help='Indicates whether the git owner is a user or organisation')
-def generate_repo(vpc_name, num_azs, without_private_subnet, without_public_subnet, with_nat_gateway, git_owner, is_org):
+def generate_project(vpc_name, num_azs, without_private_subnet, without_public_subnet, with_nat_gateway, git_owner, is_org):
     """ Generates a VPC Pyclops repository from a template repository """
     private_subnet = without_private_subnet == False
     public_subnet = without_public_subnet == False
@@ -118,6 +118,6 @@ def deploy(stack_name):
     print("StackId: %s" % response['StackId'])
 
 
-vpc.add_command(generate_repo)
+vpc.add_command(generate_project)
 vpc.add_command(build)
 vpc.add_command(deploy)
