@@ -10,7 +10,8 @@ setup(
         'boto3',
         'jinja2',
         'requests',
-        'ruamel.yaml'
+        'ruamel.yaml',
+        'awscli'
     ],
     entry_points='''
         [console_scripts]

@@ -6,7 +6,7 @@ from pyclops.lib.git.repo import Repository
 
 
 class GithubProvider(object):
-    def __init__(self, credentials=os.getenv('GITHUB_OAUTH')):
+    def __init__(self, credentials=os.getenv('GITHUB_TOKEN')):
         self.api_endpoint = 'https://api.github.com'
         self.credentials = credentials
     
