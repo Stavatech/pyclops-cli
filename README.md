@@ -43,13 +43,27 @@ cd pyclops-cli
 pip install -e .
 ```
 
+## Setup
+
+### Git/Github
+
+Pyclops generates Github repositories for you. To do this, it requires access to your Github account. Before running the commands below, generate a personal access token on Github and set your `GITHUB_TOKEN` environment varibale:
+
+```
+export GITHUB_TOKEN=<personal_access_token>
+```
+
+Also ensure that git has been configured with your Github account:
+```
+git config --global user.email "my.email@provider.com"
+git config --global user.name "My Name"
+```
+
+### AWS
+
+For AWS templates, you will need to have the AWS CLI configured with the credentials of the account you want to deploy to. To do this, see the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html#cli-quick-configuration).
+
 ## Usage
-
-Pyclops generates Github repositories for you. To do this, it requires access to your Github account. Before running the commands below, generate a personal access token on Github and set your `GITHUB_OAUTH` environment varibale:
-
-```
-export GITHUB_OAUTH=<personal_access_token>
-```
 
 The Pyclops CLI is self-describing. Each command has a `--help` flag that will provided more instructions on how to use it:
 
@@ -61,7 +75,25 @@ Some common workflows are described below.
 
 ### Generate and deploy a Django project to ECS/Fargate on AWS
 
-...
+To generate the Django project and repository, run the following command:
+```
+pyclops django --project-name pyclops-django-project --git-owner githubusername --branch master /path/to/working_directory/pyclops-django-project
+```
+
+The above command will generate a project in the specified working directory and push it onto Github. Next, in order to be able to deploy to AWS, run the following commands to create the ECR docker repository and build and push a Docker image to that repository:
+```
+### TODO:
+- Add Pyclops command to create ECR repository
+- Add Pyclops command to build and push Docker image to ECR repository
+```
+
+The above command will have printed out an ECR repository ARN. Copy this ARN into the `ecr_repo` field in the `params.py` file in the base directory of your project.
+
+You are now all set to build and deploy your project to AWS. In the base directry of your project, run the following commands:
+```
+pyclops aws cloudformation build --template-dir cfn/service --params-file params.py 
+pyclops aws cloudformation deploy --stack-name pyclops-django-project --template-file build/serverless/serverless.template.yml --capabilities CAPABILITY_IAM
+```
 
 ### Generate and deploy a Flask project to ECS/Fargate on AWS
 
@@ -74,14 +106,14 @@ The [AWS Serverless template](https://github.com/Stavatech/AWS-Serverless-Templa
 To generate a Lambda project with Pyclops, run the following command:
 
 ```
-pyclops aws serverless generate-project --project-name my-project --git-owner githubusername --branch master --deployment-bucket some-unique-s3-bucket-name /path/to/working_directory
+pyclops aws serverless generate-project --project-name pyclops-lambda-project --git-owner githubusername --branch master --deployment-bucket some-unique-s3-bucket-name /path/to/workspace/pyclops-lambda-project
 ```
 
 The above command will generate a project in the specified working directory and push it onto Github. To deploy the project to AWS, navigate to the working directory and run the follow commands:
 
 ```
 pyclops aws serverless package
-pyclops aws cloudformation deploy --stack-name pyclops-lambda-test --template-file build/serverless/serverless.template.yml --capabilities CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM
+pyclops aws cloudformation deploy --stack-name pyclops-lambda-project --template-file build/serverless/serverless.template.yml --capabilities CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM
 ```
 
 
