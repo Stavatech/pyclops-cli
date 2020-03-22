@@ -82,8 +82,8 @@ pyclops django --project-name pyclops-django-project --git-owner githubusername 
 
 The above command will generate a project in the specified working directory and push it onto Github. Next, in order to be able to deploy to AWS, run the following commands to create the ECR docker repository and build and push a Docker image to that repository:
 ```
+pyclops aws ecr create-repo --repo-name pyclops/test
 ### TODO:
-- Add Pyclops command to create ECR repository
 - Add Pyclops command to build and push Docker image to ECR repository
 ```
 
@@ -91,7 +91,7 @@ The above command will have printed out an ECR repository ARN. Copy this ARN int
 
 You are now all set to build and deploy your project to AWS. In the base directry of your project, run the following commands:
 ```
-pyclops aws cloudformation build --template-dir cfn/service --params-file params.py 
+pyclops aws cloudformation build --template-dir cfn/service --params-file params.py
 pyclops aws cloudformation deploy --stack-name pyclops-django-project --template-file build/serverless/serverless.template.yml --capabilities CAPABILITY_IAM
 ```
 
