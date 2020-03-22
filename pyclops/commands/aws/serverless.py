@@ -40,7 +40,7 @@ DEFAULT_SERVERLESS_TEMPLATE = Repository(
 
 @click.group()
 def serverless():
-    """ Pyclops operations for AWS VPC """
+    """ Generate and build AWS Serverless projects """
 
 
 @click.command()
