@@ -11,7 +11,8 @@ setup(
         'jinja2',
         'requests',
         'ruamel.yaml',
-        'awscli'
+        'awscli',
+        'docker-py'
     ],
     entry_points='''
         [console_scripts]

@@ -32,9 +32,7 @@ def cloudformation():
 def build(templates_dir, params_file, stage, output_prefix):
     """ Build a complete CloudFormation template from multiple source YAML and Jinja files """
     build_utils.clean(BUILD_DIR)
-
-    params = load_params('params', params_file)
-
+    params = load_params('params', params_file, stage)
     build_cfn(templates_dir, params, build_dir=BUILD_DIR, output_prefix=output_prefix)
 
 
@@ -58,13 +56,18 @@ def deploy(stack_name, template_file, template_config, parameter_overrides, capa
         for parameter_override in parameter_overrides.split(','):
             key, value = tuple(parameter_override.split('='))
             params[key] = value
+    
+    formatted_params = [{
+        'ParameterKey': list(param.keys())[0],
+        'ParameterValue': list(param.values())[0]
+    } for param in params]
 
     if get_stack(stack_name):
         print("Stack already exists. Updating...")
-        response = update_stack(stack_name, template_body, capabilities.split(','), params)
+        response = update_stack(stack_name, template_body, capabilities.split(','), formatted_params)
     else:
         print("Stack doesn't exist. Creating new stack...")
-        response = create_stack(stack_name, template_body, capabilities.split(','), params)
+        response = create_stack(stack_name, template_body, capabilities.split(','), formatted_params)
 
     print("StackId: %s" % response['StackId'])
 

@@ -90,14 +90,15 @@ def generate_project(vpc_name, num_azs, without_private_subnet, without_public_s
 
 
 @click.command()
-def build():
+@click.option('--stage', default=None, help='The stage that the CloudFormation template is being generated for (if applicable)')
+def build(stage):
     build_dir = './build/aws/vpc/cfn'
     os.makedirs(build_dir, exist_ok=True)
 
     cfn_dir = "./cfn/"
     params_file = "./params.py"
 
-    params = load_params('params', params_file)
+    params = load_params('params', params_file, stage)
     build_cfn(cfn_dir, params, build_dir=build_dir, output_prefix="vpc")
 
 

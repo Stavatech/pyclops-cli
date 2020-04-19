@@ -73,7 +73,7 @@ def package(templates_dir, app_dir, params_file, stage, output_prefix):
     build_utils.clean()
     os.makedirs(BUILD_DIR, exist_ok=True)
 
-    params = load_params('params', params_file)
+    params = load_params('params', params_file, stage)
 
     s3_deployment_bucket = params['s3_deployment_bucket']
     create_bucket(s3_deployment_bucket)

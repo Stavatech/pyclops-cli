@@ -83,7 +83,7 @@ def update_stack(stack_name, template_body, capabilities=[], parameters=[]):
     )
 
 def extract_parameters_from_config(template_config):
-    if os.path.isfile(template_config):
+    if not os.path.isfile(template_config):
         raise Exception('An invalid path was specified for the template config file: %s' % template_config)
 
     param_list = []

@@ -77,22 +77,26 @@ Some common workflows are described below.
 
 To generate the Django project and repository, run the following command:
 ```
-pyclops django --project-name pyclops-django-project --git-owner githubusername --branch master /path/to/working_directory/pyclops-django-project
+pyclops django generate-project --project-name pyclops-django-project --git-owner githubusername --branch master /path/to/working_directory/pyclops-django-project
 ```
 
-The above command will generate a project in the specified working directory and push it onto Github. Next, in order to be able to deploy to AWS, run the following commands to create the ECR docker repository and build and push a Docker image to that repository:
+The above command will generate a project in the specified working directory and push it onto Github. Next, in order to be able to deploy to AWS, run the following commands to create the ECR docker repository:
 ```
 pyclops aws ecr create-repo --repo-name pyclops/test
-### TODO:
-- Add Pyclops command to build and push Docker image to ECR repository
 ```
 
-The above command will have printed out an ECR repository ARN. Copy this ARN into the `ecr_repo` field in the `params.py` file in the base directory of your project.
+If successful, the above command would have printed out the ARN for the newly created repository. The ARN would look something like `arn:aws:ecr:{region}:{accountId}:repository/pyclops/test` and is the unique identifier for your repository. Before moving forward, set the `ecr_repo` variable in your `params.py` file (located at the root of your generated project) to the printed out ARN.
 
-You are now all set to build and deploy your project to AWS. In the base directry of your project, run the following commands:
+Now that we have a repository for our Docker image, we need to build the image and push it up to the repository. To do this we first need to log in to the repository.
 ```
-pyclops aws cloudformation build --template-dir cfn/service --params-file params.py
-pyclops aws cloudformation deploy --stack-name pyclops-django-project --template-file build/serverless/serverless.template.yml --capabilities CAPABILITY_IAM
+pyclops aws ecr build --dockerfile docker/Dockerfile.prod --repository pyclops/test --tag latest
+pyclops aws ecr push --repository pyclops/test --tag latest
+```
+
+You are now all set to build and deploy your project to AWS (ensure you have copied the ECR repo ARN into your `params.py` file as instructed above). In the base directry of your project, run the following commands:
+```
+pyclops aws cloudformation build --templates-dir cfn/service --params-file params.py --stage staging
+pyclops aws cloudformation deploy --stack-name pyclops-django-project --template-file build/cfn/cfn.template.yml --template-config build/cfn/service.config.json --capabilities CAPABILITY_IAM
 ```
 
 ### Generate and deploy a Flask project to ECS/Fargate on AWS
@@ -124,6 +128,28 @@ pyclops aws cloudformation deploy --stack-name pyclops-lambda-project --template
 ### Generate and deploy a Virtual Private Cloud (VPC) on AWS
 
 ...
+
+### Create ECR Docker repository and push image to it
+
+*Note: you will need to have Docker installed for the below commands to work*
+
+Running a Docker-based application will often require pushing the Docker image to a online repository. AWS provides the Elastic Container Registry (ECR) for hosting Docker images. To create an ECR repository using Pyclops, run the following command:
+
+```
+pyclops aws ecr create-repo --repo-name pyclops/example
+```
+
+Once you have a Docker container repository, you will need to build and push your Docker image to it. You can do this directly via the Docker CLI, but for convenience, Pylclops provides some proxy commands to do this for you. 
+
+To build a Docker image, run the following command:
+```
+pyclops aws ecr build --dockerfile <path to Dockerfile> --repository pyclops/example --tag latest
+```
+
+To push the Docker image to your ECR repository, run the following command:
+```
+pyclops aws ecr push --repository pyclops/test --tag latest
+```
 
 ### Build (merge multiple Cloudformation Jinja templates) and deploy a Cloudformation stack
 

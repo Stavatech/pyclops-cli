@@ -12,7 +12,7 @@ class GithubProvider(object):
     
     def create_repo(self, owner:str, name:str, is_org:bool=False, optional_params:dict={}) -> Repository:
         if not self.credentials:
-            sys.stderr.write("Error: Github credntials not found. Has the GITHUB_OAUTH environment variable been set?\n")
+            sys.stderr.write("Error: Github credntials not found. Has the GITHUB_TOKEN environment variable been set?\n")
             sys.exit(-1)
 
         body = {"name": name, **optional_params}        
