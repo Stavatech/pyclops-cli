@@ -34,7 +34,7 @@ DEFAULT_SERVERLESS_TEMPLATE = Repository(
     'AWS-Serverless-Template', 
     'master', 
     'git@github.com:Stavatech/AWS-Serverless-Template', 
-    'https://github.com/Stavatech/AWS-Serverless-Template-Template.git'
+    'https://github.com/Stavatech/AWS-Serverless-Template.git'
 )
 
 
