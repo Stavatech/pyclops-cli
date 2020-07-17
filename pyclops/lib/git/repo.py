@@ -23,24 +23,32 @@ class Repository(object):
     
     def clone(self, local_dir:str="."):
         self.local_dir = local_dir
-        _run_git_cmd("git clone %s %s" % (self.ssh_url, self.local_dir), "Failed to clone repository")
+        _run_git_cmd(f"git clone {self.ssh_url} {self.local_dir}", "Failed to clone repository")
     
     def add(self, path:str="."):
         with cd(path=self.local_dir):
-            _run_git_cmd("git add %s" % path, "Failed to stage changes")
+            _run_git_cmd(f"git add {path}", "Failed to stage changes")
     
     def commit(self, commit_message:str):
         with cd(path=self.local_dir):
-            _run_git_cmd("git commit -m '%s'" % commit_message, "Failed to commit changes")
+            _run_git_cmd(f"git commit -m '{commit_message}'", "Failed to commit changes")
     
     def push(self, remote:str="origin"):
         with cd(path=self.local_dir):
-            _run_git_cmd("git push %s %s" % (remote, self.branch), "Failed to push changes to remote")
+            self._run_push_cmd(remote)
+    
+    def remove_remote(self, remote:str):
+        with cd(path=self.local_dir):
+            _run_git_cmd(f"git remote remove {remote}", "Failed to remove remote")
     
     def copy_to_new(self, owner:str, new_repo_name:str, is_org:bool=False):
         with cd(path=self.local_dir):
             repo = self.git_provider.create_repo(owner=owner, name=new_repo_name, is_org=is_org)
             repo.local_dir = self.local_dir
-            _run_git_cmd("git remote add copy %s" % repo.ssh_url, "Failed to add new remote")
-            self.push(remote="copy")
+            _run_git_cmd(f"git remote add copy {repo.ssh_url}", "Failed to add new remote")
+            self._run_push_cmd(remote="copy")
             return repo
+
+    def _run_push_cmd(self, remote:str):
+        _run_git_cmd(f"git push {remote} {self.branch}", "Failed to push changes to remote")
+        

@@ -20,7 +20,7 @@ from pyclops.lib.aws.s3 import create_bucket, write_file
 from pyclops.lib.io.context_managers import cd
 from pyclops.lib.io import build as build_utils
 from pyclops.lib.projects.params import load_params
-from pyclops.lib.projects.project import generate_from_template
+from pyclops.lib.projects.project import extract_project_params, generate_from_template
 
 
 BUILD_DIR = os.path.join(
@@ -28,14 +28,12 @@ BUILD_DIR = os.path.join(
     'serverless'
 )
 
-DEFAULT_SERVERLESS_TEMPLATE = Repository(
-    GithubProvider(), 
-    'Stavatech', 
-    'AWS-Serverless-Template', 
-    'master', 
-    'git@github.com:Stavatech/AWS-Serverless-Template', 
-    'https://github.com/Stavatech/AWS-Serverless-Template.git'
-)
+DEFAULT_PROVIDER = "github"
+DEFAULT_TEMPLATE = "Stavatech/AWS-Serverless-Template"
+
+git_providers = {
+    "github": GithubProvider() 
+}
 
 
 @click.group()
@@ -45,21 +43,20 @@ def serverless():
 
 @click.command()
 @click.option('--project-name', prompt='Project name', help='The name that will be used for the new repo and project')
-@click.option('--git-owner', prompt="Git username/organisation", help='The git username or organisation (see --is-org) that will own the new repository')
-@click.option('--is-org', is_flag=True, help='Indicates whether the git owner is a user or organisation')
-@click.option('--branch', default='master', help='The branch that monitored during deployments')
-@click.option('--template', default=DEFAULT_SERVERLESS_TEMPLATE, help='The template git repository')
+@click.option('--provider', default=DEFAULT_PROVIDER, help='The git provider of the template repository')
+@click.option('--template-repo', default=DEFAULT_TEMPLATE, help='The template git repository')
+@click.option('--template-params', default=None, help='Comma-separated parameters required by the specific template being used e.g. param_1=abc,param_2=def')
+@click.option('--destination-repo-owner', default=None, help='The git user or organization who will own the new repository (if this parameter is not supplied, creation of the remote git repository will be skipped)')
 @click.option('--deployment-bucket', prompt="S3 deployment bucket", help='The bucket the deployment artifacts will be sent to when deploying to Lambda')
 @click.argument('working-dir', type=click.Path())
-def generate_project(project_name:str, git_owner:str, is_org:bool, branch:str, template:Repository, deployment_bucket:str, working_dir:str):
-    """ Generates a new project from an AWS Serverless template """   
-    params = {
-        'project_name': project_name,
-        'git_owner': git_owner,
-        'git_branch': branch,
-        's3_deployment_bucket': deployment_bucket
-    }
-    generate_from_template(project_name, git_owner, is_org, branch, template, params, working_dir)
+def generate_project(project_name:str, provider:str, template_repo:str, template_params:str, destination_repo_owner:str, deployment_bucket:str, working_dir:str):
+    """ Generates a new project from an AWS Serverless template """    
+    git_provider = git_providers[provider]
+    template = git_provider.get_repo(template_repo)
+
+    params, destination_repo_params = extract_project_params(git_provider, project_name, template_params, destination_repo_owner)
+
+    generate_from_template(template, params, destination_repo_params, working_dir)
 
 
 @click.command()

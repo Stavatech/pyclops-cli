@@ -1,14 +1,14 @@
-from .django import django
-from .react import react
-from .clean import clean
 from .aws import aws
+from .clean import clean
 from .docker import docker
+from .react import react
+from .templates import templates
 
 
 cli_groups = [
-    django,
-    react,
-    clean,
     aws,
-    docker
+    clean,
+    docker,
+    react,
+    templates
 ]

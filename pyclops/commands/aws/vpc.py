@@ -3,12 +3,18 @@ import click
 
 from pyclops.lib.git.github.provider import GithubProvider
 from pyclops.lib.git.repo import Repository
-
 from pyclops.lib.aws.cloudformation import build_cfn, get_stack, create_stack, update_stack
 from pyclops.lib.projects.params import load_params
 
 
-DEFAULT_VPC_TEMPLATE = Repository(GithubProvider(), 'Stavatech', 'VPC-Template', 'master', 'git@github.com:Stavatech/VPC-Template.git', 'https://github.com/Stavatech/VPC-Template.git')
+DEFAULT_VPC_TEMPLATE = Repository(
+    GithubProvider(), 
+    'Stavatech', 
+    'VPC-Template', 
+    'master', 
+    'git@github.com:Stavatech/VPC-Template.git', 
+    'https://github.com/Stavatech/VPC-Template.git'
+)
 
 
 def generate_subnet(az_index, cidr_index, is_public):
@@ -50,12 +56,10 @@ def generate_project(vpc_name, num_azs, without_private_subnet, without_public_s
     public_subnet = without_public_subnet == False
 
     # Steps:
-    # 1) set up build directory
+    # 1) clone repo
     build_dir = os.path.join(os.getenv('BUILD_DIR', './build'), 'aws/vpc')
-    os.makedirs(build_dir, exist_ok=True)
-    
-    # 2) clone template repo
     repo_dir = os.path.join(build_dir, 'repo')
+    os.makedirs(repo_dir, exist_ok=True)
     repo = DEFAULT_VPC_TEMPLATE
     repo.clone(local_dir=repo_dir)
 

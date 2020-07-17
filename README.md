@@ -73,6 +73,20 @@ pyclops --help
 
 Some common workflows are described below.
 
+### List known templates
+
+Generate a markdown table of registered/known templates:
+```
+pyclops templates list-templates
+```
+
+### Generate a new project from a Pyclops template
+
+Generate a new project from a given template. If the `--destination-repo` option is used, Pyclops will attempt to push the repo to the remote repository.
+```
+pyclops templates generate-project --provider <github> --template-repo <git repo> --project-name <project name> --destination-repo <owner/repo:branch>
+```
+
 ### Generate and deploy a Django project to ECS/Fargate on AWS
 
 To generate the Django project and repository, run the following command:
@@ -82,15 +96,15 @@ pyclops django generate-project --project-name pyclops-django-project --git-owne
 
 The above command will generate a project in the specified working directory and push it onto Github. Next, in order to be able to deploy to AWS, run the following commands to create the ECR docker repository:
 ```
-pyclops aws ecr create-repo --repo-name pyclops/test
+pyclops aws ecr create-repo --repo-name pyclops/pyclops-django-project
 ```
 
 If successful, the above command would have printed out the ARN for the newly created repository. The ARN would look something like `arn:aws:ecr:{region}:{accountId}:repository/pyclops/test` and is the unique identifier for your repository. Before moving forward, set the `ecr_repo` variable in your `params.py` file (located at the root of your generated project) to the printed out ARN.
 
-Now that we have a repository for our Docker image, we need to build the image and push it up to the repository. To do this we first need to log in to the repository.
+Now that we have a repository for our Docker image, we need to build the image and push it up to the repository.
 ```
-pyclops aws ecr build --dockerfile docker/Dockerfile.prod --repository pyclops/test --tag latest
-pyclops aws ecr push --repository pyclops/test --tag latest
+pyclops aws ecr build --dockerfile docker/Dockerfile.prod --repository pyclops/pyclops-django-project --tag latest
+pyclops aws ecr push --repository pyclops/pyclops-django-project --tag latest
 ```
 
 You are now all set to build and deploy your project to AWS (ensure you have copied the ECR repo ARN into your `params.py` file as instructed above). In the base directry of your project, run the following commands:
@@ -120,14 +134,16 @@ pyclops aws serverless package
 pyclops aws cloudformation deploy --stack-name pyclops-lambda-project --template-file build/serverless/serverless.template.yml --capabilities CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM
 ```
 
-
 ### Generate and deploy a React front-end project to AWS S3/Cloudfront
 
 ...
 
 ### Generate and deploy a Virtual Private Cloud (VPC) on AWS
 
-...
+A Virtual Private Cloud (VPC) is a cordoned of are of the cloud where users can deploy their services and infrastucture securely, without them being accessible from outside of the VPC (unless otherwise configured). To setup a VPC on AWS using pyclops, run the following commands:
+```
+pyclops aws vpc generate-project --vpc-name pyclops-vpc --num-AZs 3 --with-nat-gateway --git-owner davidbrownza
+```
 
 ### Create ECR Docker repository and push image to it
 
@@ -148,9 +164,15 @@ pyclops aws ecr build --dockerfile <path to Dockerfile> --repository pyclops/exa
 
 To push the Docker image to your ECR repository, run the following command:
 ```
-pyclops aws ecr push --repository pyclops/test --tag latest
+pyclops aws ecr push --repository pyclops/example --tag latest
 ```
 
 ### Build (merge multiple Cloudformation Jinja templates) and deploy a Cloudformation stack
 
-...
+Rather than having a single, massive Cloudformation file, Pyclops allows users to split their Cloudformation into multiple Jinja templates and then provides a `build` command that processes the Jinja templates and merges the output Cloudformation files into a single, complete template. Users can then use the `deploy` command to deploy the Cloudformation stack to AWS:
+```
+pyclops aws cloudformation build --templates-dir cfn/service --params-file params.py --stage staging
+pyclops aws cloudformation deploy --stack-name pyclops-django-project --template-file build/cfn/cfn.template.yml --template-config build/cfn/service.config.json --capabilities CAPABILITY_IAM
+```
+
+In the above commands, the `params.py` file is a Python file that can be used to pass parameters to the Jinja templates. The `--stage` flag can be used to select specific variables in that `params.py` file.
