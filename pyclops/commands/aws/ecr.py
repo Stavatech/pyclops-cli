@@ -19,7 +19,7 @@ def create_repo(repo_name):
 
 @click.command()
 @click.option('--tag', default='latest', help='Tag the image with the given tag')
-@click.option('--repository', default='latest', help='The name of the image repository')
+@click.option('--repository', prompt='ECR repo', help='The name of the image repository')
 @click.option('--dockerfile', default='Dockerfile', help='The relative path to the Dockerfile')
 def build(tag:str, repository:str, dockerfile:str):
     """ Build a Docker image from a Dockerfile """

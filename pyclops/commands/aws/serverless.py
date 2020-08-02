@@ -66,7 +66,7 @@ def generate_project(project_name:str, provider:str, template_repo:str, template
 @click.option('--stage', default=None, help='The stage that the CloudFormation template is being generated for (if applicable)')
 @click.option('--output-prefix', default='serverless', help='Prefix for the generated template and config files')
 def package(templates_dir, app_dir, params_file, stage, output_prefix):
-    """ Build a complete CloudFormation template from multiple source YAML and Jinja files """
+    """ Package and upload a serverless app to S3 and build a the CloudFormation template required to deploy it """
     build_utils.clean()
     os.makedirs(BUILD_DIR, exist_ok=True)
 

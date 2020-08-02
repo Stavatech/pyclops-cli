@@ -29,12 +29,13 @@ def tag(tag:str, repository:str, image_id:str):
 
 
 @click.command()
+@click.option('--registry', prompt='Registry', help='The Docker registry where your repository is located')
+@click.option('--username', prompt='Username', help='The username to use to log in to the registry')
+@click.option('--password', prompt='Password', help='The password to use to log in to the registry')
+@click.option('--repository', prompt='Repository', help='The name of the image repository')
 @click.option('--tag', default='latest', help='Tag the image with the given tag')
-@click.option('--repository', default='latest', help='The name of the image repository')
-def push(tag:str, repository:str):
+def push(registry:str, username:str, password:str, repository:str, tag:str):
     """ Push a Docker image to a repository """
-    username, password, registry = ecr.get_authorization_data()
-    registry = registry[8:]
     print(f"{registry}/{repository}:{tag}")
     docker_cli.push_image(f"{registry}/{repository}:{tag}", username, password, registry)
 
