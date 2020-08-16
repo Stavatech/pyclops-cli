@@ -140,10 +140,7 @@ pyclops aws cloudformation deploy --stack-name pyclops-lambda-project --template
 
 ### Generate and deploy a Virtual Private Cloud (VPC) on AWS
 
-A Virtual Private Cloud (VPC) is a cordoned of are of the cloud where users can deploy their services and infrastucture securely, without them being accessible from outside of the VPC (unless otherwise configured). To setup a VPC on AWS using pyclops, run the following commands:
-```
-pyclops aws vpc generate-project --vpc-name pyclops-vpc --num-AZs 3 --with-nat-gateway --git-owner davidbrownza
-```
+...
 
 ### Create ECR Docker repository and push image to it
 
