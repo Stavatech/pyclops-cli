@@ -25,7 +25,6 @@ class GithubProvider(object):
         
     def get_repo(self, relative_location:str):
         url = f"{self.api_endpoint}/repos/{relative_location}"
-        print(url)
         headers = self._get_auth_header()
         response = requests.get(url, headers=headers)
         return self._handle_repo_response(response)

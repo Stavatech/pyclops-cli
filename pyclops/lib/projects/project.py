@@ -21,7 +21,7 @@ def extract_project_params(git_provider:GithubProvider, project_name:str, templa
     else:
         destination_repo_params = {
             'git_owner': destination_repo_owner,
-            'is_org': git_provider.is_org(params['git_owner'])
+            'is_org': git_provider.is_org(destination_repo_owner)
         }
     
     return params, destination_repo_params
@@ -50,5 +50,4 @@ def generate_from_template(template:Repository, params:dict, destination_repo_pa
     # 3) push to destination repo (if provided)
     if destination_repo_params is not None:
         new_repo = template.copy_to_new(owner=git_owner, new_repo_name=project_name, is_org=is_org)
-
-    print("\nGenerated repository: %s" % new_repo.html_url)
+        print("\nGenerated repository: %s" % new_repo.html_url)
