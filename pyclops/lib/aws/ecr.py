@@ -2,10 +2,10 @@ import boto3
 import base64
 
 
-def create_repo(repo_name: str) -> str:
+def create_repo(repo_name: str) -> dict:
     """ Create an ECR repository and return the ARN """
     ecr = boto3.client('ecr')
-    return ecr.create_repository(repositoryName=repo_name)['repository']['repositoryArn']
+    return ecr.create_repository(repositoryName=repo_name)['repository']
 
 
 def get_authorization_data():

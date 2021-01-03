@@ -13,8 +13,8 @@ def ecr():
 @click.option('--repo-name', prompt='Repository name', help='The name that will be used for the new repo')
 def create_repo(repo_name):
     """ Create an ECR repository"""
-    repo_arn = ecr_utils.create_repo(repo_name)
-    click.echo(repo_arn)
+    repo_uri = ecr_utils.create_repo(repo_name)['repositoryUri']
+    click.echo(repo_uri)
 
 
 @click.command()

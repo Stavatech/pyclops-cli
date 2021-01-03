@@ -84,33 +84,33 @@ pyclops templates list-templates
 
 Generate a new project from a given template. If the `--destination-repo` option is used, Pyclops will attempt to push the repo to the remote repository.
 ```
-pyclops templates generate-project --provider <github> --template-repo <git repo> --project-name <project name> --destination-repo <owner/repo:branch>
+pyclops templates generate-project --provider <github> --template-repo <git repo> --project-name <project name> --destination-repo-owner <git repo owner>
 ```
 
 ### Generate and deploy a Django project to ECS/Fargate on AWS
 
 To generate the Django project and repository, run the following command:
 ```
-pyclops django generate-project --project-name pyclops-django-project --git-owner githubusername --branch master /path/to/working_directory/pyclops-django-project
+pyclops templates generate-project --provider github --template-repo Stavatech/Django-Template --project-name example-django-project --destination-repo-owner githubuser
 ```
 
 The above command will generate a project in the specified working directory and push it onto Github. Next, in order to be able to deploy to AWS, run the following commands to create the ECR docker repository:
 ```
-pyclops aws ecr create-repo --repo-name pyclops/pyclops-django-project
+pyclops aws ecr create-repo --repo-name pyclops/example-django-project
 ```
 
-If successful, the above command would have printed out the ARN for the newly created repository. The ARN would look something like `arn:aws:ecr:{region}:{accountId}:repository/pyclops/test` and is the unique identifier for your repository. Before moving forward, set the `ecr_repo` variable in your `params.py` file (located at the root of your generated project) to the printed out ARN.
+If successful, the above command would have printed out the URI for the newly created repository. The URI would look something like `{accountId}.dkr.ecr.{region}.amazonaws.com/pyclops/test`. Before moving forward, set the `ecr_repo` variable in your `params.py` file (located at the root of your generated project) to the printed out URI.
 
 Now that we have a repository for our Docker image, we need to build the image and push it up to the repository.
 ```
-pyclops aws ecr build --dockerfile docker/Dockerfile.prod --repository pyclops/pyclops-django-project --tag latest
-pyclops aws ecr push --repository pyclops/pyclops-django-project --tag latest
+pyclops aws ecr build --dockerfile docker/Dockerfile.prod --repository pyclops/example-django-project --tag latest
+pyclops aws ecr push --repository pyclops/example-django-project --tag latest
 ```
 
 You are now all set to build and deploy your project to AWS (ensure you have copied the ECR repo ARN into your `params.py` file as instructed above). In the base directry of your project, run the following commands:
 ```
 pyclops aws cloudformation build --templates-dir cfn/service --params-file params.py --stage staging
-pyclops aws cloudformation deploy --stack-name pyclops-django-project --template-file build/cfn/cfn.template.yml --template-config build/cfn/service.config.json --capabilities CAPABILITY_IAM
+pyclops aws cloudformation deploy --stack-name example-django-project --template-file build/cfn/cfn.template.yml --template-config build/cfn/service.config.json --capabilities CAPABILITY_IAM
 ```
 
 ### Generate and deploy a Flask project to ECS/Fargate on AWS
