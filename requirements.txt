@@ -4,7 +4,7 @@ botocore==1.12.205
 Click==7.0
 docutils==0.14
 isort==4.3.21
-Jinja2==2.10.1
+Jinja2==2.11.3
 jmespath==0.9.4
 lazy-object-proxy==1.4.1
 MarkupSafe==1.1.1
